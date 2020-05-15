@@ -68,20 +68,23 @@ def parseGitModuleFile(file):
         res.append((p, u))
     return res
 
-def parse(path, url=None):
-    if os.path.isfile(os.path.join(path, '.gitmodules')) is False:
-        return Tree({'name': os.path.basename(os.path.normpath(path)),
-                     'path': path, 'url': url})
+def parse(path, relpath=None, url=None):
+    if relpath:
+        name = os.path.normpath(os.path.relpath(path, start=relpath))
+    else:
+        name = os.path.basename(os.path.normpath(path))
 
-    tree = Tree({'name': os.path.basename(os.path.normpath(path)),
-                 'path': path, 'url': url})
+    if os.path.isfile(os.path.join(path, '.gitmodules')) is False:
+        return Tree({'name': name, 'path': path, 'url': url})
+
+    tree = Tree({'name': name, 'path': path, 'url': url})
     moduleFile = os.path.join(path, '.gitmodules')
 
     if os.path.isfile(moduleFile) is True:
         subs = parseGitModuleFile(moduleFile)
         for p, u in subs:
             newPath = os.path.join(path, p)
-            newTree = parse(newPath, u)
+            newTree = parse(newPath, relpath=relpath, url=u)
             tree.createChild(newTree)
     return tree
 
@@ -102,10 +105,17 @@ def parse(path, url=None):
               default=False, is_flag=True,
               show_default=True,
               help="Add repo URLs")
+@click.option('-r', '--relative-path',
+              default=False, is_flag=True,
+              show_default=True,
+              help="Show relative path")
 @click.argument('repo')
-def main(mode, repo, graphmode, out, with_url):
+def main(mode, repo, graphmode, out, with_url, relative_path):
     root = repo
-    tree = parse(root)
+    if relative_path:
+        tree = parse(root, relpath=root)
+    else:
+        tree = parse(root)
 
     if mode == 'text':
         tree.print(with_url=with_url)

@@ -17,6 +17,7 @@ Options:
   -g, --graphmode TEXT  GraphMode: scattered | clustered  [default: scattered]
   -o, --out TEXT        Image filename  [default: graph]
   -u, --with-url        Add repo URLs  [default: False]
+  -r, --relative-path   Show relative path  [default: False]
   --help                Show this message and exit.
 ```
 
@@ -27,6 +28,9 @@ $ submodulegraph <path to repo>
 
 # Print the structure of the submodules in text in the console, including repo URLs.
 $ submodulegraph -u <path to repo>
+
+# Print the structure of the submodules in text in the console, including repo URLs and relative paths of submodule directories.
+$ submodulegraph -u -r <path to repo>
 
 # Create a png of the submodule structure where all the submodules are listed separately.
 $ submodulegraph -m png <path to repo>
